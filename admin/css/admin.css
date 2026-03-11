@@ -1,0 +1,116 @@
+/* Vikingbad Admin Styles */
+
+.vikingbad-import-controls {
+	margin: 20px 0;
+}
+
+/* Progress bar */
+.vikingbad-progress-wrap {
+	margin: 20px 0;
+}
+
+.vikingbad-progress-bar {
+	width: 100%;
+	max-width: 600px;
+	height: 24px;
+	background: #e0e0e0;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.vikingbad-progress-fill {
+	height: 100%;
+	background: #0073aa;
+	transition: width 0.3s ease;
+	border-radius: 4px;
+}
+
+.vikingbad-progress-text {
+	margin-top: 8px;
+	font-size: 14px;
+	color: #555;
+}
+
+.vikingbad-error-text {
+	color: #d63638;
+}
+
+/* Stats */
+.vikingbad-stats {
+	display: flex;
+	gap: 24px;
+	margin: 20px 0;
+}
+
+.vikingbad-stat {
+	padding: 12px 20px;
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	text-align: center;
+	min-width: 100px;
+}
+
+.vikingbad-stat-label {
+	display: block;
+	font-size: 12px;
+	text-transform: uppercase;
+	color: #666;
+	margin-bottom: 4px;
+}
+
+.vikingbad-stat-value {
+	display: block;
+	font-size: 28px;
+	font-weight: 600;
+}
+
+.vikingbad-stat-created .vikingbad-stat-value {
+	color: #00a32a;
+}
+
+.vikingbad-stat-updated .vikingbad-stat-value {
+	color: #0073aa;
+}
+
+.vikingbad-stat-failed .vikingbad-stat-value {
+	color: #d63638;
+}
+
+/* Errors */
+.vikingbad-errors {
+	margin: 20px 0;
+	padding: 12px 16px;
+	background: #fff;
+	border-left: 4px solid #d63638;
+}
+
+.vikingbad-errors h3 {
+	margin: 0 0 8px;
+	color: #d63638;
+}
+
+.vikingbad-errors ul {
+	margin: 0;
+	list-style: disc inside;
+}
+
+.vikingbad-errors li {
+	font-size: 13px;
+	color: #555;
+	padding: 2px 0;
+}
+
+/* Settings page */
+.vikingbad-test-result {
+	margin-left: 12px;
+	font-weight: 600;
+}
+
+.vikingbad-test-result.success {
+	color: #00a32a;
+}
+
+.vikingbad-test-result.error {
+	color: #d63638;
+}
