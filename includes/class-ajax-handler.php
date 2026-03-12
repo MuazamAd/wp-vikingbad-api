@@ -58,7 +58,7 @@ class Ajax_Handler {
 
 		$logger = new Logger();
 		$client = new API_Client( $token, $logger );
-		$result = $client->get_products( 1, 20 );
+		$result = $client->get_products( 1, 10 );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( [ 'message' => $result->get_error_message() ] );
@@ -101,7 +101,7 @@ class Ajax_Handler {
 
 		$logger = new Logger();
 		$client = new API_Client( $token, $logger );
-		$result = $client->get_products( $page, 20 );
+		$result = $client->get_products( $page, 10 );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( [ 'message' => $result->get_error_message() ] );
@@ -159,7 +159,7 @@ class Ajax_Handler {
 
 		$logger = new Logger();
 		$client = new API_Client( $token, $logger );
-		$result = $client->get_products( 1, 20 );
+		$result = $client->get_products( 1, 10 );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( [ 'message' => $result->get_error_message() ] );
@@ -209,7 +209,7 @@ class Ajax_Handler {
 
 		$logger = new Logger();
 		$client = new API_Client( $token, $logger );
-		$result = $client->get_products( $page, 20 );
+		$result = $client->get_products( $page, 10 );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( [ 'message' => $result->get_error_message() ] );
