@@ -230,14 +230,8 @@ class Product_Importer {
 		$product->update_meta_data( '_vikingbad_group_name', $data['name'] ?? '' );
 		$product->update_meta_data( '_vikingbad_variant_description', sanitize_text_field( $data['description'] ?? '' ) );
 
-		// Categories.
-		$categories = $data['categories'] ?? [];
-		if ( ! empty( $categories ) ) {
-			$term_ids = $this->category_handler->resolve( $categories );
-			if ( ! empty( $term_ids ) ) {
-				$product->set_category_ids( $term_ids );
-			}
-		}
+		// Categories (merge — preserves manually added categories).
+		$this->sync_categories( $product, $data['categories'] ?? [] );
 
 		$product_id = $product->save();
 
@@ -271,14 +265,8 @@ class Product_Importer {
 		$variable     = $this->mapper->map_parent( $products[0], $variable, $descriptions );
 		$variable->update_meta_data( '_vikingbad_group_name', $name );
 
-		// Categories from the first product (shared).
-		$categories = $products[0]['categories'] ?? [];
-		if ( ! empty( $categories ) ) {
-			$term_ids = $this->category_handler->resolve( $categories );
-			if ( ! empty( $term_ids ) ) {
-				$variable->set_category_ids( $term_ids );
-			}
-		}
+		// Categories (merge — preserves manually added categories).
+		$this->sync_categories( $variable, $products[0]['categories'] ?? [] );
 
 		$variable_id = $variable->save();
 
@@ -307,14 +295,8 @@ class Product_Importer {
 		$variable = $this->mapper->map_parent( $products[0], $variable, $all_descriptions );
 		$variable->update_meta_data( '_vikingbad_group_name', $products[0]['name'] ?? '' );
 
-		// Categories.
-		$categories = $products[0]['categories'] ?? [];
-		if ( ! empty( $categories ) ) {
-			$term_ids = $this->category_handler->resolve( $categories );
-			if ( ! empty( $term_ids ) ) {
-				$variable->set_category_ids( $term_ids );
-			}
-		}
+		// Categories (merge — preserves manually added categories).
+		$this->sync_categories( $variable, $products[0]['categories'] ?? [] );
 
 		$variable->save();
 	}
@@ -511,6 +493,39 @@ class Product_Importer {
 			} );
 			update_option( 'vikingbad_api_categories', $all );
 		}
+	}
+
+	/**
+	 * Sync API categories onto a product while preserving manually added ones.
+	 *
+	 * Stores API-assigned term IDs in _vikingbad_category_ids meta.
+	 * On update: removes old API categories no longer in the API response,
+	 * adds new API categories, and leaves manual categories untouched.
+	 */
+	private function sync_categories( \WC_Product $product, array $api_categories ): void {
+		if ( empty( $api_categories ) ) {
+			return;
+		}
+
+		$new_api_term_ids = $this->category_handler->resolve( $api_categories );
+		if ( empty( $new_api_term_ids ) ) {
+			return;
+		}
+
+		$old_api_term_ids = $product->get_meta( '_vikingbad_category_ids' );
+		$old_api_term_ids = is_array( $old_api_term_ids ) ? array_map( 'intval', $old_api_term_ids ) : [];
+
+		$current_term_ids = $product->get_category_ids();
+
+		// Manual categories = current minus old API ones.
+		$manual_term_ids = array_diff( $current_term_ids, $old_api_term_ids );
+
+		// Merged = manual + new API categories.
+		$merged = array_unique( array_merge( $manual_term_ids, $new_api_term_ids ) );
+		$merged = array_values( array_map( 'intval', $merged ) );
+
+		$product->set_category_ids( $merged );
+		$product->update_meta_data( '_vikingbad_category_ids', $new_api_term_ids );
 	}
 
 	private function add_error( string $message ): void {
