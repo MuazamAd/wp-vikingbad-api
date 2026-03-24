@@ -275,6 +275,12 @@ class Product_Importer {
 			return null;
 		}
 
+		// Set parent image from the first product's images.
+		$image_urls = $this->extract_image_urls( $products[0] );
+		if ( ! empty( $image_urls ) ) {
+			$this->image_handler->import( $image_urls, $variable_id );
+		}
+
 		$this->created++;
 		$this->logger->info( "Created variable product: {$name} (ID: {$variable_id})" );
 
@@ -299,6 +305,14 @@ class Product_Importer {
 		$this->sync_categories( $variable, $products[0]['categories'] ?? [] );
 
 		$variable->save();
+
+		// Set parent image if it doesn't have one.
+		if ( ! $variable->get_image_id() ) {
+			$image_urls = $this->extract_image_urls( $products[0] );
+			if ( ! empty( $image_urls ) ) {
+				$this->image_handler->import( $image_urls, $variable->get_id() );
+			}
+		}
 	}
 
 	/**
