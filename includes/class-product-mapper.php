@@ -93,7 +93,8 @@ class Product_Mapper {
 		}
 
 		if ( ! empty( $data['text'] ) ) {
-			$product->set_short_description( wp_kses_post( $data['text'] ) );
+			$text = self::kses_with_iframes( $data['text'] );
+			$product->set_short_description( $text );
 		}
 
 		if ( ! empty( $data['technical_info'] ) ) {
@@ -153,6 +154,39 @@ class Product_Mapper {
 		if ( is_numeric( $net ) ) {
 			$product->update_meta_data( '_vikingbad_net_price', (string) $net );
 		}
+	}
+
+	/**
+	 * Sanitize HTML while allowing iframes from trusted video sources.
+	 */
+	private static function kses_with_iframes( string $html ): string {
+		$allowed            = wp_kses_allowed_html( 'post' );
+		$allowed['iframe']  = [
+			'src'             => true,
+			'width'           => true,
+			'height'          => true,
+			'frameborder'     => true,
+			'allow'           => true,
+			'allowfullscreen' => true,
+			'style'           => true,
+			'title'           => true,
+		];
+
+		$clean = wp_kses( $html, $allowed );
+
+		// Strip iframes that aren't from trusted sources.
+		$clean = preg_replace_callback( '/<iframe[^>]*src=["\']([^"\']*)["\'][^>]*>.*?<\/iframe>/is', function ( $match ) {
+			$src = $match[1];
+			if ( preg_match( '#^https?://(player\.vimeo\.com|www\.youtube\.com|youtube\.com|youtu\.be)/#i', $src ) ) {
+				return $match[0];
+			}
+			return '';
+		}, $clean );
+
+		// Remove empty div wrappers only if no iframe inside.
+		$clean = preg_replace( '/<div[^>]*>\s*<\/div>/', '', $clean );
+
+		return trim( $clean );
 	}
 
 	/**
